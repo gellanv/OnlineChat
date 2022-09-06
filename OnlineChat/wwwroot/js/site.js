@@ -1,6 +1,17 @@
 ﻿$(function () {
     $("#rooms li").click(function () {
 
+        var sendform = document.getElementById('sendform');
+
+        var replycontainer = document.getElementsByClassName('replycontainer');
+        if (replycontainer.length != 0) {
+            sendform.removeChild(replycontainer[0]);
+        }        
+        var quoteid = document.getElementsByName('quoteid');
+        if (quoteid.length != 0) {
+            sendform.removeChild(quoteid[0]);
+        }
+
         var myid = $(this).attr("id");
 
         var currentRoom = document.getElementById('currentroom');
@@ -14,15 +25,25 @@
         var url = "/Home/RefreshMessageByRoom/" + myid + "?pageId=" + 1;
 
         $.get(url, function (data) {
-            $("#main").html(data);
-            var chatHistory = document.getElementById("chat");
-            chatHistory.scrollTop = chatHistory.scrollHeight;
+            $("#main").html(data);    
+            window.scrollTo(0, document.body.scrollHeight);
         });
     }); 
 });
 
 $(function () {
     $("#users li").click(function () {
+
+        var sendform = document.getElementById('sendform');
+
+        var replycontainer = document.getElementsByClassName('replycontainer');
+        if (replycontainer.length != 0) {
+            sendform.removeChild(replycontainer[0]);
+        }
+        var quoteid = document.getElementsByName('quoteid');
+        if (quoteid.length != 0) {
+            sendform.removeChild(quoteid[0]);
+        }
 
         var myid = $(this).attr("id");
 
@@ -38,8 +59,7 @@ $(function () {
 
         $.get(url, function (data) {
             $("#main").html(data);
-            var chatHistory = document.getElementById("chat");
-            chatHistory.scrollTop = chatHistory.scrollHeight;
+            window.scrollTo(0, document.body.scrollHeight);
         });
     });
 });
@@ -48,6 +68,7 @@ document.addEventListener('mouseover', function (event) {
     if (event.target.className == "editmessage") {
         document.getElementById('currentmessage').value = event.target.id;
         document.getElementById('textCurrentMessage').value = event.target.getAttribute("text");
+        document.getElementById('authorCurrentMessage').value = event.target.getAttribute("content");
     }
 });
 
@@ -80,7 +101,7 @@ document.addEventListener('click', function (event) {
     $.get(url, function (data) {
         $("#main").html(data);
         var chatHistory = document.getElementById("chat");
-        chatHistory.scrollTop = chatHistory.scrollHeight;
+        window.scrollTo(0, document.body.scrollHeight);
     });
 }, true);
 
@@ -137,12 +158,77 @@ function updateMessage() {
     document.body.appendChild(container);
 }
 
+
+function replyAllMessage() {
+    var messageId = document.getElementById('currentmessage').value;
+    var text = document.getElementById('textCurrentMessage').value;
+    var idroom = document.getElementById('currentroom').value;
+
+    var sendblock = document.getElementById('sendform');
+
+    var replycontainer = document.getElementsByClassName('replycontainer');
+    if (replycontainer.length == 0) {
+        let quote = document.createElement('p');
+        quote.className = "replycontainer";
+        quote.innerHTML = "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" fill=\"currentColor\" class=\"bi bi-arrow-return-right\" viewBox=\"0 0 16 16\">\r\n                              <path fill-rule=\"evenodd\" d=\"M1.5 1.5A.5.5 0 0 0 1 2v4.8a2.5 2.5 0 0 0 2.5 2.5h9.793l-3.347 3.346a.5.5 0 0 0 .708.708l4.2-4.2a.5.5 0 0 0 0-.708l-4-4a.5.5 0 0 0-.708.708L13.293 8.3H3.5A1.5 1.5 0 0 1 2 6.8V2a.5.5 0 0 0-.5-.5z\"/>\r\n</svg>" + text;
+
+        sendblock.appendChild(quote);
+    }
+    else {
+        replycontainer[0].innerHTML = "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" fill=\"currentColor\" class=\"bi bi-arrow-return-right\" viewBox=\"0 0 16 16\">\r\n                              <path fill-rule=\"evenodd\" d=\"M1.5 1.5A.5.5 0 0 0 1 2v4.8a2.5 2.5 0 0 0 2.5 2.5h9.793l-3.347 3.346a.5.5 0 0 0 .708.708l4.2-4.2a.5.5 0 0 0 0-.708l-4-4a.5.5 0 0 0-.708.708L13.293 8.3H3.5A1.5 1.5 0 0 1 2 6.8V2a.5.5 0 0 0-.5-.5z\"/>\r\n</svg>" + text;
+    }
+
+    var quoteid = document.getElementsByName('quoteid');
+    if (quoteid.length == 0) {
+        let inputId = document.createElement('input');
+        inputId.setAttribute("type", "hidden");
+        inputId.setAttribute("value", messageId);
+        inputId.setAttribute("name", "quoteid");
+        sendblock.appendChild(inputId);
+    }
+    else {
+        quoteid[0].setAttribute("value", messageId);
+    }
+    window.scrollTo(0, document.body.scrollHeight);
+}
+
+function replyInPersonalChat() {
+
+    var myid = document.getElementById('authorCurrentMessage').value;
+
+    var currentRoom = document.getElementById('currentroom');
+    var currentRoomform = document.getElementById('currentroomform');
+    currentRoom.value = currentRoomform.value = '';
+
+    var currentToUser = document.getElementById('currenttouser');
+    var currentToUserform = document.getElementById('currenttouserform');
+    currentToUser.value = currentToUserform.value = myid;
+
+    var url = "/Home/RefreshMessageByUser/" + myid + "?pageId=" + 1;
+
+    $.get(url, function (data) {
+        $("#main").html(data);
+        window.scrollTo(0, document.body.scrollHeight);
+    });
+
+    replyAllMessage();
+}
+
 const textInput = document.getElementById('messageText');
 
 function clearInputField() {
     textInput.value = "";
-    updateListMessage();
+    var sendform = document.getElementById('sendform');
 
+    var replycontainer = document.getElementsByClassName('replycontainer');
+    if (replycontainer.length != 0) {
+        sendform.removeChild(replycontainer[0]);
+    }
+    var quoteid = document.getElementsByName('quoteid');
+    if (quoteid.length != 0) {
+        sendform.removeChild(quoteid[0]);
+    }
+    updateListMessage();
 }
 
 function dellUpdateContainer() {
@@ -182,8 +268,7 @@ function updateListMessageForSelf() {
 
     $.get(url, function (data) {
         $("#main").html(data);
-        var chatHistory = document.getElementById("chat");
-        chatHistory.scrollTop = chatHistory.scrollHeight;
+        window.scrollTo(0, document.body.scrollHeight);
     });  
 }
 
@@ -212,8 +297,7 @@ function updateListMessageInChat(position) {
 
                 $.get(url, function (data) {
                     $("#main").html(data);
-                    var chatHistory = document.getElementById("chat");
-                    chatHistory.scrollTop = chatHistory.scrollHeight;
+                    window.scrollTo(0, document.body.scrollHeight);
                 });
             }
         }
@@ -230,8 +314,7 @@ function updateListMessageInChat(position) {
 
             $.get(url, function (data) {
                 $("#main").html(data);
-                var chatHistory = document.getElementById("chat");
-                chatHistory.scrollTop = chatHistory.scrollHeight;
+                window.scrollTo(0, document.body.scrollHeight);
             });
         }
     }

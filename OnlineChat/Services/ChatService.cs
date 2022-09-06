@@ -23,11 +23,26 @@ namespace OnlineChat.Services
 
             return user;
         }
+
         public async Task<Room> GetRoomByIdAsync(int id)
         {
             var room = await _context.Rooms.FirstOrDefaultAsync(x => x.Id == id);
 
             return room;
+        }
+
+        public async Task<Message> GetMessageByIdAsync(int id)
+        {
+            var message = await _context.Messages.FirstOrDefaultAsync(x => x.Id == id);
+
+            return message;
+        }
+
+        public async Task<PrivateMessage> GetPrivateMessageByIdAsync(int id)
+        {
+            var privateMessage = await _context.PrivateMessages.FirstOrDefaultAsync(x => x.Id == id);
+
+            return privateMessage;
         }
 
         public async Task<IEnumerable<IdentityUser>> GelListUsersAsync(AppUser currentUser)
@@ -57,15 +72,16 @@ namespace OnlineChat.Services
 
         public async Task<IEnumerable<PrivateMessage>> GetMessagesByUserIdAsync(AppUser currentUser, string idToUser)
         {
-            var messages = await _context.PrivateMessages
-                                .Where(x => x.AppUserId == currentUser.Id && x.ToAppUserId == idToUser || x.AppUserId == idToUser && x.ToAppUserId == currentUser.Id)
-                                .Where(x => x.VisibleForAuthor == true || (x.VisibleForAuthor == false && x.AppUserId != currentUser.Id))
-                                .OrderBy(x => x.Created)
-                                .ToListAsync();
+            var messages = await _context.PrivateMessages.Include(x => x.AnswerToMessage)
+                             .Where(x => x.AppUserId == currentUser.Id && x.ToAppUserId == idToUser || (x.AppUserId == idToUser && x.ToAppUserId == currentUser.Id))
+                             .Where(x => x.VisibleForAuthor == true || (x.VisibleForAuthor == false && x.AppUserId != currentUser.Id))
+                             .OrderBy(x => x.Created)
+                             .ToListAsync();
             return messages;
+
         }
 
-        public async Task CreateMessageAsync(Message message, AppUser currentUser, int roomId)
+        public async Task CreateMessageAsync(Message message, AppUser currentUser, int roomId, int? quoterId = null)
         {
             DateTime dateTime = DateTime.Now;
 
@@ -74,11 +90,17 @@ namespace OnlineChat.Services
             message.Created = dateTime;
             message.RoomId = roomId;
 
+            if (quoterId != null)
+            {
+                Message quoteMessage = await GetMessageByIdAsync((int)quoterId);
+                message.AnswerToMessage = quoteMessage;
+            }
+
             await _context.Messages.AddAsync(message);
             await _context.SaveChangesAsync();
         }
 
-        public async Task CreatePrivateMessageAsync(Message message, AppUser currentUser, string userId)
+        public async Task CreatePrivateMessageAsync(Message message, AppUser currentUser, string userId, int? quoterId = null)
         {
             DateTime dateTime = DateTime.Now;
 
@@ -88,6 +110,12 @@ namespace OnlineChat.Services
             privateMessage.Created = dateTime;
             privateMessage.AppUserId = currentUser.Id;
             privateMessage.ToAppUserId = userId;
+
+            if (quoterId != null)
+            {
+                Message quoteMessage = await GetMessageByIdAsync((int)quoterId);
+                privateMessage.AnswerToMessage = quoteMessage;
+            }
 
             await _context.PrivateMessages.AddAsync(privateMessage);
             await _context.SaveChangesAsync();

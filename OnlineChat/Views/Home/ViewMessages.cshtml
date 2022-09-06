@@ -22,6 +22,17 @@
         <div class="row">
             <div class="@offset">
                 <div class="@containerClass" id="@message.Id" text="@message.Text">
+                    @if(@message.AnswerToMessage!=null)
+                    {
+                        <div class="quote">                            
+                            <p class="senderquote">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-return-right" viewBox="0 0 16 16">
+                              <path fill-rule="evenodd" d="M1.5 1.5A.5.5 0 0 0 1 2v4.8a2.5 2.5 0 0 0 2.5 2.5h9.793l-3.347 3.346a.5.5 0 0 0 .708.708l4.2-4.2a.5.5 0 0 0 0-.708l-4-4a.5.5 0 0 0-.708.708L13.293 8.3H3.5A1.5 1.5 0 0 1 2 6.8V2a.5.5 0 0 0-.5-.5z"/>
+                            </svg>                                
+                                @message.AnswerToMessage.UserName</p>
+                            <p class="messagequote">@message.AnswerToMessage.Text</p>
+                        </div>
+                    }                    
                     @if((userName == message.UserName))
                     {
                          <form  data-ajax-begin="updateMessage" data-ajax="true"  data-ajax-method="POST">                            
@@ -56,10 +67,39 @@
                                  <path d="M2.037 3.225A.703.703 0 0 1 2 3c0-1.105 2.686-2 6-2s6 .895 6 2a.702.702 0 0 1-.037.225l-1.684 10.104A2 2 0 0 1 10.305 15H5.694a2 2 0 0 1-1.973-1.671L2.037 3.225zm9.89-.69C10.966 2.214 9.578 2 8 2c-1.58 0-2.968.215-3.926.534-.477.16-.795.327-.975.466.18.14.498.307.975.466C5.032 3.786 6.42 4 8 4s2.967-.215 3.926-.534c.477-.16.795-.327.975-.466-.18-.14-.498-.307-.975-.466z"/>
                                 </svg>                               
                             </button>                            
-                        </form>                    
-                    }                       
+                                </form>
+                            }
+                            else
+                            {
+                                if(@Model.RoomId!=null)
+                                {
+                                 <form data-ajax-success="replyInPersonalChat" data-ajax="true"  data-ajax-method="POST">                            
+                                    <input type="hidden" value="@message.Id" name="currentmessage" id="currentmessageid"/>
+                                     <input type="hidden" value="@Model.RoomId" name="currentroom"/>
+                                    <input type="hidden" value="@Model.ToUserId" name="currenttouser"/> 
+                                    <button type ="submit" class="editmessage" text="@message.Text" content="@message.AppUserId" id="@message.Id">
+                                        <span class="tooltiptext">Reply in PersonChat</span>
+                                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-reply-fill" viewBox="0 0 16 16">
+                                          <path d="M5.921 11.9 1.353 8.62a.719.719 0 0 1 0-1.238L5.921 4.1A.716.716 0 0 1 7 4.719V6c1.5 0 6 0 7 8-2.5-4.5-7-4-7-4v1.281c0 .56-.606.898-1.079.62z"/>
+                                        </svg>                                
+                                    </button>                            
+                                </form>
+                                 <form data-ajax-success="replyAllMessage" data-ajax="true"  data-ajax-method="POST">                            
+                                <input type="hidden" value="@message.Id" name="currentmessage" id="currentmessageid"/>
+                                 <input type="hidden" value="@Model.RoomId" name="currentroom"/>
+                                <input type="hidden" value="@Model.ToUserId" name="currenttouser"/> 
+                                <button type ="submit" class="editmessage" text="@message.Text" content="@message.AppUserId" id="@message.Id">
+                                     <span class="tooltiptext">Reply</span>
+                                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-reply-all-fill" viewBox="0 0 16 16">
+                                      <path d="M8.021 11.9 3.453 8.62a.719.719 0 0 1 0-1.238L8.021 4.1a.716.716 0 0 1 1.079.619V6c1.5 0 6 0 7 8-2.5-4.5-7-4-7-4v1.281c0 .56-.606.898-1.079.62z"/>
+                                      <path d="M5.232 4.293a.5.5 0 0 1-.106.7L1.114 7.945a.5.5 0 0 1-.042.028.147.147 0 0 0 0 .252.503.503 0 0 1 .042.028l4.012 2.954a.5.5 0 1 1-.593.805L.539 9.073a1.147 1.147 0 0 1 0-1.946l3.994-2.94a.5.5 0 0 1 .699.106z"/>
+                                    </svg>                              
+                                </button>                            
+                                </form>
+                                }                 
+                            }
                      <p class="sender">@message.UserName</p>
-                    <p class="message" id="currentMessageText">@message.Text</p>
+                    <p class="message" id="currentMessageText">@message.Text</p>                  
                     <span>@message.Created.ToString()</span>
                 </div>
             </div>

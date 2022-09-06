@@ -10,7 +10,8 @@
      <input type="hidden" id="currenttouser" value="@Model.ToUserId"/>
      <input type="hidden" id="currentuser" value="@Model.UserId"/>
      <input type="hidden" id="currentmessage" value=""/>
-     <input type="hidden" id="textCurrentMessage" value=""/>     
+     <input type="hidden" id="textCurrentMessage" value=""/>
+     <input type="hidden" id="authorCurrentMessage" value=""/> 
     <div class="row">
         <div class="col-lg-3" id="rooms">
             <h3>Rooms</h3>
@@ -30,7 +31,7 @@
                       }               
                 </div>
                 <div class="col-lg-12" id="sendblock">
-                <form asp-action="CreateMessage"
+                <form id="sendform" asp-action="CreateMessage"
                       data-ajax-success="clearInputField"
                       data-ajax="true"  data-ajax-method="POST">
                       <div asp-validation-summary="ModelOnly" class="text-danger"></div>

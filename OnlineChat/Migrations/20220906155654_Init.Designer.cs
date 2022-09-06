@@ -12,8 +12,8 @@ using OnlineChat.Data;
 namespace OnlineChat.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20220905235914_init")]
-    partial class init
+    [Migration("20220906155654_Init")]
+    partial class Init
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -240,6 +240,9 @@ namespace OnlineChat.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
+                    b.Property<int?>("AnswerToMessageId")
+                        .HasColumnType("int");
+
                     b.Property<string>("AppUserId")
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
@@ -263,6 +266,8 @@ namespace OnlineChat.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("AnswerToMessageId");
+
                     b.HasIndex("AppUserId");
 
                     b.HasIndex("RoomId");
@@ -277,6 +282,9 @@ namespace OnlineChat.Migrations
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+
+                    b.Property<int?>("AnswerToMessageId")
+                        .HasColumnType("int");
 
                     b.Property<string>("AppUserId")
                         .IsRequired()
@@ -301,6 +309,8 @@ namespace OnlineChat.Migrations
                         .HasColumnType("bit");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("AnswerToMessageId");
 
                     b.HasIndex("AppUserId");
 
@@ -384,6 +394,10 @@ namespace OnlineChat.Migrations
 
             modelBuilder.Entity("OnlineChat.Models.Message", b =>
                 {
+                    b.HasOne("OnlineChat.Models.Message", "AnswerToMessage")
+                        .WithMany()
+                        .HasForeignKey("AnswerToMessageId");
+
                     b.HasOne("OnlineChat.Models.AppUser", "AppUser")
                         .WithMany("Messages")
                         .HasForeignKey("AppUserId")
@@ -396,6 +410,8 @@ namespace OnlineChat.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.Navigation("AnswerToMessage");
+
                     b.Navigation("AppUser");
 
                     b.Navigation("Room");
@@ -403,11 +419,17 @@ namespace OnlineChat.Migrations
 
             modelBuilder.Entity("OnlineChat.Models.PrivateMessage", b =>
                 {
+                    b.HasOne("OnlineChat.Models.Message", "AnswerToMessage")
+                        .WithMany()
+                        .HasForeignKey("AnswerToMessageId");
+
                     b.HasOne("OnlineChat.Models.AppUser", "AppUser")
                         .WithMany("PrivateMessages")
                         .HasForeignKey("AppUserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("AnswerToMessage");
 
                     b.Navigation("AppUser");
                 });

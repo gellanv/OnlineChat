@@ -8,6 +8,7 @@
         public string UserName { get; set; }
         public DateTime Created { get; set; }
         public bool VisibleForAuthor { get; set; } = true;
+        public Message? AnswerToMessage { get; set; }
 
         public string AppUserId { get; set; }
         public AppUser AppUser { get; set; }

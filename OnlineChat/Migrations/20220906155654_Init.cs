@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace OnlineChat.Migrations
 {
-    public partial class init : Migration
+    public partial class Init : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -169,30 +169,6 @@ namespace OnlineChat.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "PrivateMessages",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Text = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    AppUserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    ToAppUserId = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    UserName = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Created = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    VisibleForAuthor = table.Column<bool>(type: "bit", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_PrivateMessages", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_PrivateMessages_AspNetUsers_AppUserId",
-                        column: x => x.AppUserId,
-                        principalTable: "AspNetUsers",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "Messages",
                 columns: table => new
                 {
@@ -203,6 +179,7 @@ namespace OnlineChat.Migrations
                     UserName = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Created = table.Column<DateTime>(type: "datetime2", nullable: false),
                     VisibleForAuthor = table.Column<bool>(type: "bit", nullable: false),
+                    AnswerToMessageId = table.Column<int>(type: "int", nullable: true),
                     AppUserId = table.Column<string>(type: "nvarchar(450)", nullable: false)
                 },
                 constraints: table =>
@@ -215,11 +192,46 @@ namespace OnlineChat.Migrations
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
+                        name: "FK_Messages_Messages_AnswerToMessageId",
+                        column: x => x.AnswerToMessageId,
+                        principalTable: "Messages",
+                        principalColumn: "Id");
+                    table.ForeignKey(
                         name: "FK_Messages_Rooms_RoomId",
                         column: x => x.RoomId,
                         principalTable: "Rooms",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "PrivateMessages",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Text = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    AppUserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    ToAppUserId = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    UserName = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Created = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    VisibleForAuthor = table.Column<bool>(type: "bit", nullable: false),
+                    AnswerToMessageId = table.Column<int>(type: "int", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_PrivateMessages", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_PrivateMessages_AspNetUsers_AppUserId",
+                        column: x => x.AppUserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_PrivateMessages_Messages_AnswerToMessageId",
+                        column: x => x.AnswerToMessageId,
+                        principalTable: "Messages",
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateIndex(
@@ -262,6 +274,11 @@ namespace OnlineChat.Migrations
                 filter: "[NormalizedUserName] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Messages_AnswerToMessageId",
+                table: "Messages",
+                column: "AnswerToMessageId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Messages_AppUserId",
                 table: "Messages",
                 column: "AppUserId");
@@ -270,6 +287,11 @@ namespace OnlineChat.Migrations
                 name: "IX_Messages_RoomId",
                 table: "Messages",
                 column: "RoomId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_PrivateMessages_AnswerToMessageId",
+                table: "PrivateMessages",
+                column: "AnswerToMessageId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_PrivateMessages_AppUserId",
@@ -295,19 +317,19 @@ namespace OnlineChat.Migrations
                 name: "AspNetUserTokens");
 
             migrationBuilder.DropTable(
-                name: "Messages");
-
-            migrationBuilder.DropTable(
                 name: "PrivateMessages");
 
             migrationBuilder.DropTable(
                 name: "AspNetRoles");
 
             migrationBuilder.DropTable(
-                name: "Rooms");
+                name: "Messages");
 
             migrationBuilder.DropTable(
                 name: "AspNetUsers");
+
+            migrationBuilder.DropTable(
+                name: "Rooms");
         }
     }
 }

@@ -76,6 +76,7 @@ namespace OnlineChat.Controllers
             var currentUser = await _userManager.GetUserAsync(User);
             viewModelHome.UserId = currentUser.Id;
             var messages = await _chatService.GetMessagesByUserIdAsync(currentUser, id);
+
             var count = messages.Count();
 
             viewModelHome.Messages = messages.SkipLast((pageId - 1) * pageSize).TakeLast(pageSize).ToList();
@@ -87,6 +88,7 @@ namespace OnlineChat.Controllers
 
         public async Task<IActionResult> CreateMessage(Message message)
         {
+            var quotemessage = Request.Form["quoteid"];
             var crtroom = Request.Form["currentroom"];
             var crttouser = Request.Form["currenttouser"];
             AppUser user = await _userManager.GetUserAsync(User);
@@ -95,12 +97,26 @@ namespace OnlineChat.Controllers
             {
                 if (crttouser == "")
                 {
-                    await _chatService.CreateMessageAsync(message, user, Convert.ToInt32(crtroom));
+                    if (quotemessage == "")
+                    {
+                        await _chatService.CreateMessageAsync(message, user, Convert.ToInt32(crtroom));
+                    }
+                    else
+                    {
+                        await _chatService.CreateMessageAsync(message, user, Convert.ToInt32(crtroom), Convert.ToInt32(quotemessage));
+                    }
                     return Ok();
                 }
                 else if (crttouser != "")
                 {
-                    await _chatService.CreatePrivateMessageAsync(message, user, crttouser);
+                    if (quotemessage == "")
+                    {
+                        await _chatService.CreatePrivateMessageAsync(message, user, crttouser);
+                    }
+                    else
+                    {
+                        await _chatService.CreatePrivateMessageAsync(message, user, crttouser, Convert.ToInt32(quotemessage));
+                    }
                     return Ok();
                 }
                 return Ok();
@@ -110,6 +126,7 @@ namespace OnlineChat.Controllers
                 return Ok(ex.ToString());
             }
         }
+
         public async Task<IActionResult> DellMessageForAll()
         {
             int messageId = Convert.ToInt32(Request.Form["currentmessage"]);

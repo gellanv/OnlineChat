@@ -1,4 +1,6 @@
-﻿namespace OnlineChat.Models
+﻿using System.ComponentModel.DataAnnotations.Schema;
+
+namespace OnlineChat.Models
 {
     public class PrivateMessage : IMessage
     {
@@ -9,8 +11,7 @@
         public string UserName { get; set; }
         public DateTime Created { get; set; }
         public bool VisibleForAuthor { get; set; } = true;
-
-
+        public Message? AnswerToMessage { get; set; }
         public AppUser AppUser { get; set; }
     }
 }
