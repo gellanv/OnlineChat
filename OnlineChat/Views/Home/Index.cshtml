@@ -1,0 +1,77 @@
+﻿@model OnlineChat.ViewModel.ViewModelHome
+
+@{
+    ViewData["Title"] = "Home Page";
+    var userName = User.Identity.Name;
+}
+
+<div id="container"> 
+     <input type="hidden" id="currentroom" value="@Model.RoomId"/>
+     <input type="hidden" id="currenttouser" value="@Model.ToUserId"/>
+     <input type="hidden" id="currentuser" value="@Model.UserId"/>
+     <input type="hidden" id="currentmessage" value=""/>
+     <input type="hidden" id="textCurrentMessage" value=""/>     
+    <div class="row">
+        <div class="col-lg-3" id="rooms">
+            <h3>Rooms</h3>
+            <ul>
+                @foreach (var room in @Model.Rooms)
+                {
+                    <li id="@room.Id">@room.Name</li>
+                }
+
+            </ul>          
+        </div>
+        <div class="col-lg-6">
+            <div class="row">
+                <div class="col-lg-12" id="main">
+                    @{
+                            await Html.RenderPartialAsync("ViewMessages");
+                      }               
+                </div>
+                <div class="col-lg-12" id="sendblock">
+                <form asp-action="CreateMessage"
+                      data-ajax-success="clearInputField"
+                      data-ajax="true"  data-ajax-method="POST">
+                      <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                      <div class="form-group">
+                          <input name="Text" class="form-control" id="messageText"/>
+                      </div>                 
+                      <div class="form-group">
+                          <input type ="submit" value="Send" id="submitButton" class="btn"/>
+                      </div>                        
+                      <input type="hidden" value="@userName" name="username" />
+                      <input type="hidden" id="currentroomform" value="@Model.RoomId" name="currentroom"/>
+                      <input type="hidden" id="currenttouserform" value="@Model.ToUserId" name="currenttouser"/>                  
+                </form>
+            </div>
+             </div>
+        </div>        
+        <div class="col-lg-3" id="users">
+            <h3>Users</h3>
+             <ul>
+                 @if(@Model.Users!=null)
+                {
+                   @foreach(var user in @Model.Users)
+                    {
+                        <li id="@user.Id">@user.UserName</li>
+                    } 
+                }                
+            </ul>
+        </div>
+    </div>
+</div>
+
+
+@if(User.Identity.IsAuthenticated)
+   {
+     <script>
+         userName = "@ViewBag.CurrentUserName";
+    </script>
+   }   
+@section scripts{
+    <script src="~/lib/signalr.js/signalr.min.js"></script>  
+    <script src="~/lib/jquery/dist/jquery.unobtrusive-ajax.min.js"></script>
+    <script src="~/js/signalrReqHandler.js"></script>    
+    <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.js"></script>
+}
